@@ -1,0 +1,156 @@
+<html>
+    <head>
+        <title>CH4 Planos</title>
+        <meta charset="UTF-8" />
+    </head>
+    <body>
+        <canvas id="mycanvas"></canvas>
+        <script src="../js/three.min.js"></script>
+        <script src="../js/OrbitControls.js"></script>
+        <script src="../js/PDBLoader.js"></script>
+        <script>
+            //Hay que probar si la OrbitCamara no funciona por quitar las funciones
+            //Primeramente se declaran las variables correspondientes a la cámara que indica la posición del observador
+            //la escena donde se colocan los cuerpos y el renderer que es el encargado de mostrar el dibujo
+
+            var renderer;
+            var scene;
+            var camera;
+            var controls;
+            var mycanvas = document.getElementById("mycanvas")            
+
+           
+            scene = new THREE.Scene();//A la variable scene se le asocia el método scene de three.js
+
+            var plane1geom = new THREE.CircleGeometry(65, 50);
+            var plane1mat = new THREE.MeshBasicMaterial({color: 0xcccccc,transparent: true, opacity: 0.5});
+            plane1mat.side = THREE.DoubleSide;
+            var plane1 = new THREE.Mesh(plane1geom, plane1mat);
+            plane1.rotation.x = 0* Math.PI;
+            scene.add(plane1);
+
+            var plane2geom = new THREE.CircleGeometry(65, 50);
+            var plane2mat = new THREE.MeshBasicMaterial({color: 0xcccccc,transparent: true, opacity: 0.5});
+            plane2mat.side = THREE.DoubleSide;
+            var plane2 = new THREE.Mesh(plane2geom, plane2mat);
+            plane2.rotation.y = 0.5* Math.PI;
+            scene.add(plane2);
+
+            var direcLight = new THREE.DirectionalLight(0xffffff, 1);//Añade una luz a la escena e indica su posición
+            direcLight.position.set(0,0,200);
+            scene.add(direcLight);
+
+            var spotLight = new THREE.DirectionalLight(0xffffff, 0.6);//Añade una luz a la escena e indica su posición
+            spotLight.position.set(0,0,-200);
+            scene.add(spotLight);
+
+            var ambientalLight = new THREE.AmbientLight(0xffffff);
+            ambientalLight.intensity = 0.2;
+            scene.add(ambientalLight);
+
+            renderer = new THREE.WebGLRenderer({canvas: mycanvas, antialias: true});
+            renderer.setClearColor(0x000000, 1.0);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 10, 1000);
+            camera.position.x = 100;
+            camera.position.y = 100;
+            camera.position.z = 100;
+            camera.lookAt(scene.position);
+
+            var loader = new THREE.PDBLoader();
+            
+			var offset = new THREE.Vector3();
+
+            //Add Protein Loader
+            function loadMolecule( url ) {
+
+                loader.load( url, function ( pdb ) {
+
+                    var geometryAtoms = pdb.geometryAtoms;
+                    var geometryBonds = pdb.geometryBonds;
+                    var json = pdb.json;
+
+                    var boxGeometry = new THREE.BoxBufferGeometry( 1, 1, 1 );
+                    var sphereGeometry = new THREE.IcosahedronBufferGeometry( 1, 2 );
+
+                    geometryAtoms.computeBoundingBox();
+                    geometryAtoms.boundingBox.getCenter( offset ).negate();
+
+                    geometryAtoms.translate( offset.x, offset.y, offset.z );
+                    geometryBonds.translate( offset.x, offset.y, offset.z );
+
+                    var positions = geometryAtoms.getAttribute( 'position' );
+                    var colors = geometryAtoms.getAttribute( 'color' );
+
+                    var position = new THREE.Vector3();
+                    var color = new THREE.Color();
+
+                    for ( var i = 0; i < positions.count; i ++ ) {
+
+                        position.x = positions.getX( i );
+                        position.y = positions.getY( i );
+                        position.z = positions.getZ( i );
+
+                        color.r = colors.getX( i );
+                        color.g = colors.getY( i );
+                        color.b = colors.getZ( i );
+
+                        var material = new THREE.MeshLambertMaterial( { color: color } );
+
+                        var object = new THREE.Mesh( sphereGeometry, material );
+                        object.position.copy( position );
+                        object.position.multiplyScalar( 25 );
+                        object.scale.multiplyScalar( 10 );
+                        scene.add( object );
+
+                        var atom = json.atoms[ i ];
+
+                    }
+
+                    positions = geometryBonds.getAttribute( 'position' );
+
+                    var start = new THREE.Vector3();
+                    var end = new THREE.Vector3();
+
+                    for ( var i = 0; i < positions.count; i += 2 ) {
+
+                        start.x = positions.getX( i );
+                        start.y = positions.getY( i );
+                        start.z = positions.getZ( i );
+
+                        end.x = positions.getX( i + 1 );
+                        end.y = positions.getY( i + 1 );
+                        end.z = positions.getZ( i + 1 );
+
+                        start.multiplyScalar( 25 );
+                        end.multiplyScalar( 25 );
+
+                        var object = new THREE.Mesh( boxGeometry, new THREE.MeshPhongMaterial( 0xffffff ) );
+                        object.position.copy( start );
+                        object.position.lerp( end, 0.5 );
+                        object.scale.set( 2, 2, start.distanceTo( end ) );
+                        object.lookAt( end );
+                        scene.add( object );
+
+                    }
+
+                } );
+
+                }
+            
+            loadMolecule("../molfile/CH4.pdb");
+
+            controls = new THREE.OrbitControls(camera, mycanvas);
+            render()
+
+            var step = 0;
+            function render(){
+                renderer.render(scene, camera);
+                requestAnimationFrame(render);
+                controls.update();
+            }
+
+        </script>
+    </body>
+</html>

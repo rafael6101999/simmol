@@ -1,0 +1,11 @@
+Parte demostrativa
+Se emplean 3 representaciones, una de guía que no está visible, una sobre la cual se realiza la operación y una
+que indica la posición inicial.
+Pueden visualizarse planos y ejes previamente ubicados además de realizar las operaciones habituales de simetría
+con ellos.
+
+Visualizar en otra molécula:
+Colocar un plano que pueda moverse, ademas una función que permita añadir un plano y lo califique de acuerdo con la posición y el el ángulo de rotación.
+Realizar una animación con cada tipo de rotación. Función que permita colocar un eje de simetría
+Una animación de la inversión donde se pueda colocar el punto donde se desee
+

@@ -1,0 +1,13 @@
+Planos de Simetría:
+1-Preparar el pdb de todas las moléculas y cargarlos
+2-Colocar los planos (TODOS) y diferenciarlos utilizando colores
+
+Ejes de rotación:
+1- Señalar los ejes usando cilindros
+2- Preparar la animación de la rotación
+
+Eje de inversión:
+1- Colocar los puntos usando esferas
+2- Preparar la animación de la inversión
+
+Preparar las animaciones de los modos normales para las moléculas del Housecroft
