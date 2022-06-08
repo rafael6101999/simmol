@@ -180,7 +180,9 @@
                 requestAnimationFrame(render);
                 controls.update();
             }
-
+	window.onresize = () => {
+	  location.reload();
+	}
         </script>
     </body>
 </html>
